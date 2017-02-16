@@ -1,6 +1,8 @@
-Name:           npth
+%define _prefix /opt/gnupg21
+
+Name:           gnupg21-npth
 Version:        1.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        The New GNU Portable Threads library
 # software uses dual licensing (or both in parallel)
 License:        LGPLv3+ or GPLv2+ or (LGPLv3+ and GPLv2+)
@@ -17,6 +19,13 @@ GNU Pth for non-ancient operating systems. In contrast to GNU Pth is is
 based on the system's standard threads implementation. Thus nPth allows
 the use of libraries which are not compatible to GNU Pth.
 
+%{?filter_setup:
+%filter_from_requires /libnpth.so.0.*/d
+%filter_from_provides /libnpth.so.0.*/d
+%filter_setup
+}
+
+
 %package        devel
 Summary:        Development files for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
@@ -26,7 +35,7 @@ This package contains libraries and header files for
 developing applications that use %{name}.
 
 %prep
-%setup -q
+%setup -q -n npth-%{version}
 
 %build
 %configure --disable-static
@@ -60,6 +69,9 @@ make check
 %{_datadir}/aclocal/*
 
 %changelog
+* Sat May 28 2016 RJ Bergeron <rbergero@gmail.com> - 1.2-3
+- rebuild for gnupg21 on centos 6/7 - hack into /opt/gnupg21
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
