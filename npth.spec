@@ -1,6 +1,6 @@
 Name:           npth
-Version:        1.2
-Release:        2%{?dist}
+Version:        1.3
+Release:        1%{?dist}
 Summary:        The New GNU Portable Threads library
 # software uses dual licensing (or both in parallel)
 License:        LGPLv3+ or GPLv2+ or (LGPLv3+ and GPLv2+)
@@ -44,22 +44,27 @@ find %{buildroot} -name '*.la' -delete -print
 make check
 
 %post -p /sbin/ldconfig
-
 %postun -p /sbin/ldconfig
 
 %files
 %license COPYING COPYING.LESSER
-%{_libdir}/*.so.*
+%{_libdir}/lib%{name}.so.*
 
 %files devel
 %doc AUTHORS ChangeLog NEWS README
-%{_bindir}/*
-%{_libdir}/*.so
-%{_includedir}/*.h
-%{_mandir}/*/*
-%{_datadir}/aclocal/*
+%{_bindir}/%{name}-config
+%{_libdir}/lib%{name}.so
+%{_includedir}/%{name}.h
+%{_mandir}/man1/%{name}-config.1*
+%{_datadir}/aclocal/%{name}.m4
 
 %changelog
+* Tue Nov 22 2016 Igor Gnatenko <i.gnatenko.brain@gmail.com> - 1.3-1
+- Update to 1.3
+
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.2-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Wed Jun 17 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
 
