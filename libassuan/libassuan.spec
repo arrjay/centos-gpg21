@@ -1,7 +1,9 @@
-Name:    libassuan
+%define _prefix /opt/gnupg21
+
+Name:    gnupg21-libassuan
 Summary: GnuPG IPC library
 Version: 2.4.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 # The library is LGPLv2+, the documentation GPLv3+
 License: LGPLv2+ and GPLv3+
@@ -13,8 +15,17 @@ Group:   System Environment/Libraries
 Patch1:  libassuan-2.1.0-multilib.patch
 
 BuildRequires: gawk
-BuildRequires: libgpg-error-devel >= 1.8
+BuildRequires: gnupg21-libgpg-error-devel >= 1.8
 BuildRequires: pth-devel
+Provides: gnupg21-libassuan%{?_isa}
+
+%{?filter_setup:
+%filter_from_requires /libgpg-error.so.0.*/d
+%filter_from_requires /libassuan.so.0.*/d
+%filter_from_provides /libassuan.so.0.*/d
+%filter_setup
+}
+Requires: gnupg21-libgpg-error
 
 %description
 This is the IPC library used by GnuPG 2, GPGME and a few other
@@ -23,10 +34,10 @@ packages.
 %package devel 
 Summary: GnuPG IPC library 
 Group: Development/Libraries
-Provides: libassuan2-devel = %{version}-%{release}
-Provides: libassuan2-devel%{?_isa} = %{version}-%{release}
+Provides: gnupg21-libassuan2-devel = %{version}-%{release}
+Provides: gnupg21-libassuan2-devel%{?_isa} = %{version}-%{release}
 Requires: pth-devel
-Requires: libassuan%{?_isa} = %{version}-%{release}
+Requires: gnupg21-libassuan%{?_isa} = %{version}-%{release}
 Requires(post): /sbin/install-info
 Requires(preun): /sbin/install-info
 %description devel 
@@ -37,12 +48,16 @@ This package contains files needed to develop applications using %{name}.
 
 
 %prep
-%setup -q
+%setup -q -n libassuan-%{version}
 
 %patch1 -p1 -b .multilib
 
 
 %build
+export PATH=%{_prefix}/bin:$PATH
+export LIBRARY_PATH=%{_libdir}
+export CFLAGS="-Wl,-R%{_libdir}"
+
 %configure \
   --includedir=%{_includedir}/libassuan2
 
@@ -91,6 +106,9 @@ fi
 
 
 %changelog
+* Sat May 28 2016 RJ Bergeron <rbergero@gmail.com> 2.4.2-1
+- hack up build to live in /opt/gnupg21, targeting c6/7
+
 * Thu Dec  3 2015 Tomáš Mráz <tmraz@redhat.com> 2.4.2-1
 - new upstream release
 
