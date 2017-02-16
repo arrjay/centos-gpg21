@@ -57,15 +57,15 @@ make check
 
 %files
 %license COPYING COPYING.LESSER
-%{_libdir}/lib%{name}.so.*
+%{_libdir}/libnpth.so.*
 
 %files devel
 %doc AUTHORS ChangeLog NEWS README
-%{_bindir}/%{name}-config
-%{_libdir}/lib%{name}.so
-%{_includedir}/%{name}.h
-%{_mandir}/man1/%{name}-config.1*
-%{_datadir}/aclocal/%{name}.m4
+%{_bindir}/npth-config
+%{_libdir}/libnpth.so
+%{_includedir}/npth.h
+%{_mandir}/man1/npth-config.1*
+%{_datadir}/aclocal/npth.m4
 
 %changelog
 * Tue Nov 22 2016 Igor Gnatenko <i.gnatenko.brain@gmail.com> - 1.3-1
