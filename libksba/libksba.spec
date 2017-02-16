@@ -1,7 +1,9 @@
+%define _prefix /opt/gnupg21
+
 Summary: CMS and X.509 library
-Name:    libksba
+Name:    gnupg21-libksba
 Version: 1.3.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 
 # The library is licensed under LGPLv3+ or GPLv2+,
 # the rest of the package under GPLv3+
@@ -14,9 +16,17 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Patch1: libksba-1.3.0-multilib.patch
 
+%{?filter_setup:
+%filter_from_requires /libgpg-error.so.0.*/d
+%filter_from_requires /libgcrypt.so.20.*/d
+%filter_from_requires /libksba.so.8.*/d
+%filter_from_provides /libksba.so.8.*/d
+%filter_setup
+}
+
 BuildRequires: gawk
-BuildRequires: libgpg-error-devel >= 1.8
-BuildRequires: libgcrypt-devel >= 1.2.0
+BuildRequires: gnupg21-libgpg-error-devel >= 1.8
+BuildRequires: gnupg21-libgcrypt-devel >= 1.2.0
 
 %description
 KSBA (pronounced Kasbah) is a library to make X.509 certificates as
@@ -34,12 +44,16 @@ Requires(preun): /sbin/install-info
 
 
 %prep
-%setup -q
+%setup -q -n libksba-%{version}
 
 %patch1 -p1 -b .multilib
 
 
 %build
+# override path to gpg-error-config
+export PATH=%{_prefix}/bin:$PATH
+export LIBRARY_PATH=%{_libdir}
+export CFLAGS="-Wl,-R%{_libdir}"
 %configure \
   --disable-dependency-tracking \
   --disable-static
@@ -92,6 +106,9 @@ fi
 
 
 %changelog
+* Sun May 29 2016 RJ Bergeron <rbergero@gmail.com> - 1.3.0-6
+- hack to build into /opt/gnupg21 for el6
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.3.0-5
 - Mass rebuild 2014-01-24
 
