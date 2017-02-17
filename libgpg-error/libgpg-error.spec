@@ -1,10 +1,13 @@
+# hijack prefix here
+%define _prefix /opt/gnupg21
+
 Summary: Library for error values used by GnuPG components
-Name: libgpg-error
+Name: gnupg21-libgpg-error
 Version: 1.21
-Release: 1%{?dist}
+Release: 2%{?dist}
 URL: ftp://ftp.gnupg.org/gcrypt/libgpg-error/
-Source0: ftp://ftp.gnupg.org/gcrypt/libgpg-error/%{name}-%{version}.tar.bz2
-Source1: ftp://ftp.gnupg.org/gcrypt/libgpg-error/%{name}-%{version}.tar.bz2.sig
+Source0: ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-%{version}.tar.bz2
+Source1: ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-%{version}.tar.bz2.sig
 Patch1: libgpg-error-1.20-multilib.patch
 Group: System Environment/Libraries
 License: LGPLv2+
@@ -17,6 +20,14 @@ BuildRequires: gettext-autopoint
 %endif
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
+
+# override provides filter to not take over system gpg-error
+# filter requires to match.
+%{?filter_setup:
+%filter_from_provides /libgpg-error.so.0.*/d
+%filter_from_requires /libgpg-error.so.0.*/d
+%filter_setup
+}
 
 %description
 This is a library that defines common error values for all GnuPG
@@ -37,16 +48,17 @@ pinentry, SmartCard Daemon and possibly more in the future. This package
 contains files necessary to develop applications using libgpg-error.
 
 %prep
-%setup -q
+%setup -q -n libgpg-error-%{version}
 %patch1 -p1 -b .multilib
 # The config script already suppresses the -L if it's /usr/lib, so cheat and
 # set it to a value which we know will be suppressed.
 sed -i -e 's|^libdir=@libdir@$|libdir=@exec_prefix@/lib|g;s|@GPG_ERROR_CONFIG_HOST@|none|g' src/gpg-error-config.in
 
 # Modify configure to drop rpath for /usr/lib64
-sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="/lib /usr/lib %{_libdir}|g' configure
+sed -i -e 's|sys_lib_dlsearch_path_spec="/lib /usr/lib|sys_lib_dlsearch_path_spec="%{_libdir} /lib /usr/lib|g' configure
 
 %build
+export CFLAGS="-Wl,-R%{_libdir}"
 %configure --disable-static --disable-rpath --disable-languages
 make %{?_smp_mflags}
 
@@ -56,7 +68,7 @@ make install DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT/%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT/%{_infodir}/dir
 
-%find_lang %{name}
+%find_lang libgpg-error
 
 %check
 make check
@@ -79,7 +91,7 @@ if [ $1 = 0 -a -f %{_infodir}/gpgrt.info.gz ]; then
 fi
 exit 0
 
-%files -f %{name}.lang
+%files -f libgpg-error.lang
 %defattr(-,root,root)
 %{!?_licensedir:%global license %%doc}
 %license COPYING COPYING.LIB
@@ -97,6 +109,9 @@ exit 0
 %{_mandir}/man1/gpg-error-config.*
 
 %changelog
+* Sat May 28 2016 RJ Bergeron <rbergero@gmail.com> 1.21-2
+- pack up for centos5/6 in /opt/gnupg21
+
 * Tue Dec 22 2015 Tomáš Mráz <tmraz@redhat.com> 1.21-1
 - new upstream release
 
