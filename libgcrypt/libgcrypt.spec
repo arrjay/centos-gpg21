@@ -230,6 +230,9 @@ exit 0
 %license COPYING
 
 %changelog
+* Thu Feb 16 2017 RJ Bergeron <rbergeron@palantir.com> 1.6.6-1
+- update upstream (rbergeron@palantir.com)
+
 * Wed Aug 17 2016 Tomáš Mráz <tmraz@redhat.com> 1.6.6-1
 - new upstream version with important security fix (CVE-2016-6316)
 
