@@ -1,0 +1,61 @@
+From 34316f23070591fde837b0c5b973c476bb8fe169 Mon Sep 17 00:00:00 2001
+From: Justus Winter <justus@g10code.com>
+Date: Thu, 23 Jun 2016 17:24:23 +0200
+Subject: [PATCH] tests/openpgp: Fake the system time for the tofu test.
+
+Cherry-picked by Stephen Gallagher from
+e584d6468a2e72cd01e55f46104f9f96b56c0b66
+
+Differs from the original patch by dropping changes to a file that
+does not exist yet in 2.1.13 (tofu.scm).
+
+----
+
+The keys in the tofu test are set to expire on 2016-09-17.  Fake the
+system time for this test.
+
+This commit includes changes to the old test as well, for those who
+need to backport it.
+
+* tests/openpgp/gpg-agent.conf.tmpl: Drop trailing newlines.
+* tests/openpgp/tofu.scm: Fake system time.
+* tests/openpgp/tofu.test: Likewise.
+
+GnuPG-bug-id: 2393
+Signed-off-by: Justus Winter <justus@g10code.com>
+Signed-off-by: Stephen Gallagher <sgallagh@redhat.com>
+---
+ tests/openpgp/gpg-agent.conf.tmpl | 2 --
+ tests/openpgp/tofu.test           | 3 +++
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/tests/openpgp/gpg-agent.conf.tmpl b/tests/openpgp/gpg-agent.conf.tmpl
+index b3cb54f09bde31b884e9bac323f9fdde657aedab..70e1633178c30edc3e1c8527c579195bab49837b 100644
+--- a/tests/openpgp/gpg-agent.conf.tmpl
++++ b/tests/openpgp/gpg-agent.conf.tmpl
+@@ -1,4 +1,2 @@
+ allow-preset-passphrase
+ no-grab
+-
+-
+diff --git a/tests/openpgp/tofu.test b/tests/openpgp/tofu.test
+index 18c17562cb31ab5a1971b689423c791d40224068..0d34af4095e8df2aaa2bcf4a5da1d3210fd2f713 100755
+--- a/tests/openpgp/tofu.test
++++ b/tests/openpgp/tofu.test
+@@ -2,10 +2,13 @@
+ 
+ . $srcdir/defs.inc || exit 3
+ 
+ # set -x
+ 
++# Redefine GPG with a fixed time.
++GPG="$GPG --faked-system-time=1466684990"
++
+ KEYS="2183839A BC15C85A EE37CF96"
+ 
+ # Make sure $srcdir is set.
+ if test "x$srcdir" = x
+ then
+-- 
+2.9.3
+

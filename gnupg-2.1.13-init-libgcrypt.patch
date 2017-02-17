@@ -1,0 +1,248 @@
+diff -up gnupg-2.1.13/agent/gpg-agent.c.init-libgcrypt gnupg-2.1.13/agent/gpg-agent.c
+--- gnupg-2.1.13/agent/gpg-agent.c.init-libgcrypt	2016-06-16 17:23:13.000000000 +0200
++++ gnupg-2.1.13/agent/gpg-agent.c	2016-08-22 16:24:16.739544139 +0200
+@@ -765,14 +765,6 @@ main (int argc, char **argv )
+ 
+   npth_init ();
+ 
+-  /* Check that the libraries are suitable.  Do it here because
+-     the option parsing may need services of the library. */
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    {
+-      log_fatal( _("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-                 NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-    }
+-
+   malloc_hooks.malloc = gcry_malloc;
+   malloc_hooks.realloc = gcry_realloc;
+   malloc_hooks.free = gcry_free;
+diff -up gnupg-2.1.13/agent/protect-tool.c.init-libgcrypt gnupg-2.1.13/agent/protect-tool.c
+--- gnupg-2.1.13/agent/protect-tool.c.init-libgcrypt	2016-06-16 17:23:13.000000000 +0200
++++ gnupg-2.1.13/agent/protect-tool.c	2016-08-22 16:24:16.771544218 +0200
+@@ -566,16 +566,9 @@ main (int argc, char **argv )
+   i18n_init ();
+   init_common_subsystems (&argc, &argv);
+ 
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    {
+-      log_fatal( _("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-                 NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-    }
+-
+   setup_libgcrypt_logging ();
+   gcry_control (GCRYCTL_INIT_SECMEM, 16384, 0);
+ 
+-
+   pargs.argc = &argc;
+   pargs.argv = &argv;
+   pargs.flags=  1;  /* (do not remove the args) */
+diff -up gnupg-2.1.13/common/init.c.init-libgcrypt gnupg-2.1.13/common/init.c
+--- gnupg-2.1.13/common/init.c.init-libgcrypt	2016-02-02 07:05:16.000000000 +0100
++++ gnupg-2.1.13/common/init.c	2016-08-22 16:24:16.771544218 +0200
+@@ -47,7 +47,9 @@
+ # include <assuan.h> /* For _assuan_w32ce_finish_pipe. */
+ #endif
+ 
++#include <gcrypt.h>
+ #include "util.h"
++#include "i18n.h"
+ 
+ /* This object is used to register memory cleanup functions.
+    Technically they are not needed but they can avoid frequent
+@@ -182,6 +184,12 @@ _init_common_subsystems (gpg_err_source_
+   atexit (sleep_on_exit);
+ #endif
+ 
++  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION))
++    {
++      log_fatal (_("%s is too old (need %s, have %s)\n"), "libgcrypt",
++                 NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL));
++    }
++
+   /* Initialize the Estream library. */
+   gpgrt_init ();
+   gpgrt_set_alloc_func (gcry_realloc);
+diff -up gnupg-2.1.13/dirmngr/dirmngr.c.init-libgcrypt gnupg-2.1.13/dirmngr/dirmngr.c
+--- gnupg-2.1.13/dirmngr/dirmngr.c.init-libgcrypt	2016-06-16 17:23:13.000000000 +0200
++++ gnupg-2.1.13/dirmngr/dirmngr.c	2016-08-22 16:24:16.813544321 +0200
+@@ -755,10 +755,6 @@ main (int argc, char **argv)
+ 
+  /* Check that the libraries are suitable.  Do it here because
+     the option parsing may need services of the libraries. */
+-
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    log_fatal (_("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-               NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+   if (!ksba_check_version (NEED_KSBA_VERSION) )
+     log_fatal( _("%s is too old (need %s, have %s)\n"), "libksba",
+                NEED_KSBA_VERSION, ksba_check_version (NULL) );
+diff -up gnupg-2.1.13/dirmngr/Makefile.am.init-libgcrypt gnupg-2.1.13/dirmngr/Makefile.am
+--- gnupg-2.1.13/dirmngr/Makefile.am.init-libgcrypt	2016-07-12 11:34:24.449522584 +0200
++++ gnupg-2.1.13/dirmngr/Makefile.am	2016-08-22 16:24:16.804544299 +0200
+@@ -94,8 +94,8 @@ dirmngr_ldap_SOURCES = dirmngr_ldap.c $(
+ dirmngr_ldap_CFLAGS = $(GPG_ERROR_CFLAGS) $(LIBGCRYPT_CFLAGS)
+ dirmngr_ldap_LDFLAGS =
+ dirmngr_ldap_LDADD = $(libcommon) no-libgcrypt.o \
+-		     $(GPG_ERROR_LIBS) $(LDAPLIBS) $(LBER_LIBS) $(LIBINTL) \
+-		     $(LIBICONV)
++		     $(GPG_ERROR_LIBS) $(LIBGCRYPT_LIBS) $(LDAPLIBS) \
++		     $(LBER_LIBS) $(LIBINTL) $(LIBICONV)
+ endif
+ 
+ dirmngr_client_SOURCES = dirmngr-client.c
+diff -up gnupg-2.1.13/dirmngr/Makefile.in.init-libgcrypt gnupg-2.1.13/dirmngr/Makefile.in
+--- gnupg-2.1.13/dirmngr/Makefile.in.init-libgcrypt	2016-07-12 11:34:24.000000000 +0200
++++ gnupg-2.1.13/dirmngr/Makefile.in	2016-08-22 16:26:23.941857834 +0200
+@@ -618,7 +618,7 @@ dirmngr_LDFLAGS = $(extra_bin_ldflags)
+ @USE_LDAPWRAPPER_TRUE@dirmngr_ldap_CFLAGS = $(GPG_ERROR_CFLAGS) $(LIBGCRYPT_CFLAGS)
+ @USE_LDAPWRAPPER_TRUE@dirmngr_ldap_LDFLAGS = 
+ @USE_LDAPWRAPPER_TRUE@dirmngr_ldap_LDADD = $(libcommon) no-libgcrypt.o \
+-@USE_LDAPWRAPPER_TRUE@		     $(GPG_ERROR_LIBS) $(LDAPLIBS) $(LBER_LIBS) $(LIBINTL) \
++@USE_LDAPWRAPPER_TRUE@		     $(GPG_ERROR_LIBS) $(LIBGCRYPT_LIBS) $(LDAPLIBS) $(LBER_LIBS) $(LIBINTL) \
+ @USE_LDAPWRAPPER_TRUE@		     $(LIBICONV)
+ 
+ dirmngr_client_SOURCES = dirmngr-client.c
+diff -up gnupg-2.1.13/g10/gpg.c.init-libgcrypt gnupg-2.1.13/g10/gpg.c
+--- gnupg-2.1.13/g10/gpg.c.init-libgcrypt	2016-07-12 11:34:24.443522443 +0200
++++ gnupg-2.1.13/g10/gpg.c	2016-08-22 16:24:16.848544408 +0200
+@@ -2181,14 +2181,6 @@ main (int argc, char **argv)
+     i18n_init();
+     init_common_subsystems (&argc, &argv);
+ 
+-    /* Check that the libraries are suitable.  Do it right here because the
+-       option parsing may need services of the library.  */
+-    if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-      {
+-        log_fatal ( _("libgcrypt is too old (need %s, have %s)\n"),
+-                    NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-      }
+-
+     /* Use our own logging handler for Libcgrypt.  */
+     setup_libgcrypt_logging ();
+ 
+diff -up gnupg-2.1.13/g10/gpgv.c.init-libgcrypt gnupg-2.1.13/g10/gpgv.c
+--- gnupg-2.1.13/g10/gpgv.c.init-libgcrypt	2016-06-16 17:23:13.000000000 +0200
++++ gnupg-2.1.13/g10/gpgv.c	2016-08-22 16:24:16.853544420 +0200
+@@ -155,11 +155,6 @@ main( int argc, char **argv )
+   i18n_init();
+   init_common_subsystems (&argc, &argv);
+ 
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    {
+-      log_fatal ( _("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-                  NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-    }
+   gcry_control (GCRYCTL_DISABLE_SECMEM, 0);
+ 
+   gnupg_init_signals (0, NULL);
+diff -up gnupg-2.1.13/g13/g13.c.init-libgcrypt gnupg-2.1.13/g13/g13.c
+--- gnupg-2.1.13/g13/g13.c.init-libgcrypt	2016-06-16 17:23:13.000000000 +0200
++++ gnupg-2.1.13/g13/g13.c	2016-08-22 16:24:16.887544504 +0200
+@@ -372,11 +372,6 @@ main ( int argc, char **argv)
+ 
+   npth_init ();
+ 
+-  /* Check that the Libgcrypt is suitable.  */
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    log_fatal (_("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-               NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-
+   /* Take extra care of the random pool.  */
+   gcry_control (GCRYCTL_USE_SECURE_RNDPOOL);
+ 
+diff -up gnupg-2.1.13/g13/g13-syshelp.c.init-libgcrypt gnupg-2.1.13/g13/g13-syshelp.c
+--- gnupg-2.1.13/g13/g13-syshelp.c.init-libgcrypt	2016-06-16 17:23:13.000000000 +0200
++++ gnupg-2.1.13/g13/g13-syshelp.c	2016-08-22 16:24:16.885544499 +0200
+@@ -250,11 +250,6 @@ main ( int argc, char **argv)
+   i18n_init ();
+   init_common_subsystems (&argc, &argv);
+ 
+-  /* Check that the Libgcrypt is suitable.  */
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    log_fatal (_("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-               NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-
+   /* Take extra care of the random pool.  */
+   gcry_control (GCRYCTL_USE_SECURE_RNDPOOL);
+ 
+diff -up gnupg-2.1.13/kbx/kbxutil.c.init-libgcrypt gnupg-2.1.13/kbx/kbxutil.c
+--- gnupg-2.1.13/kbx/kbxutil.c.init-libgcrypt	2016-02-02 07:05:16.000000000 +0100
++++ gnupg-2.1.13/kbx/kbxutil.c	2016-08-22 16:24:16.910544561 +0200
+@@ -460,14 +460,6 @@ main( int argc, char **argv )
+   i18n_init ();
+   init_common_subsystems (&argc, &argv);
+ 
+-  /* Check that the libraries are suitable.  Do it here because
+-     the option parsing may need services of the library.  */
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    {
+-      log_fatal (_("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-                 NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-    }
+-
+   gcry_set_log_handler (my_gcry_logger, NULL);
+ 
+   /*create_dotlock(NULL); register locking cleanup */
+diff -up gnupg-2.1.13/scd/scdaemon.c.init-libgcrypt gnupg-2.1.13/scd/scdaemon.c
+--- gnupg-2.1.13/scd/scdaemon.c.init-libgcrypt	2016-07-12 11:34:24.454522702 +0200
++++ gnupg-2.1.13/scd/scdaemon.c	2016-08-22 16:24:16.930544610 +0200
+@@ -423,14 +423,6 @@ main (int argc, char **argv )
+ 
+   npth_init ();
+ 
+-  /* Check that the libraries are suitable.  Do it here because
+-     the option parsing may need services of the library */
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    {
+-      log_fatal (_("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-                 NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-    }
+-
+   ksba_set_malloc_hooks (gcry_malloc, gcry_realloc, gcry_free);
+ 
+   malloc_hooks.malloc = gcry_malloc;
+diff -up gnupg-2.1.13/sm/gpgsm.c.init-libgcrypt gnupg-2.1.13/sm/gpgsm.c
+--- gnupg-2.1.13/sm/gpgsm.c.init-libgcrypt	2016-07-12 11:34:24.442522419 +0200
++++ gnupg-2.1.13/sm/gpgsm.c	2016-08-22 16:24:16.946544649 +0200
+@@ -938,9 +938,6 @@ main ( int argc, char **argv)
+ 
+   /* Check that the libraries are suitable.  Do it here because the
+      option parse may need services of the library */
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    log_fatal (_("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-               NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+   if (!ksba_check_version (NEED_KSBA_VERSION) )
+     log_fatal (_("%s is too old (need %s, have %s)\n"), "libksba",
+                NEED_KSBA_VERSION, ksba_check_version (NULL) );
+diff -up gnupg-2.1.13/tools/gpg-check-pattern.c.init-libgcrypt gnupg-2.1.13/tools/gpg-check-pattern.c
+--- gnupg-2.1.13/tools/gpg-check-pattern.c.init-libgcrypt	2016-06-16 17:23:13.000000000 +0200
++++ gnupg-2.1.13/tools/gpg-check-pattern.c	2016-08-22 16:24:16.946544649 +0200
+@@ -171,13 +171,6 @@ main (int argc, char **argv )
+   i18n_init ();
+   init_common_subsystems (&argc, &argv);
+ 
+-  /* We need Libgcrypt for hashing.  */
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    {
+-      log_fatal ( _("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-                  NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-    }
+-
+   setup_libgcrypt_logging ();
+   gcry_control (GCRYCTL_INIT_SECMEM, 4096, 0);
+ 
+diff -up gnupg-2.1.13/tools/symcryptrun.c.init-libgcrypt gnupg-2.1.13/tools/symcryptrun.c
+--- gnupg-2.1.13/tools/symcryptrun.c.init-libgcrypt	2016-06-16 17:23:13.000000000 +0200
++++ gnupg-2.1.13/tools/symcryptrun.c	2016-08-22 16:24:16.947544651 +0200
+@@ -998,11 +998,6 @@ main (int argc, char **argv)
+     log_set_file (logfile);
+ 
+   gcry_control (GCRYCTL_SUSPEND_SECMEM_WARN);
+-  if (!gcry_check_version (NEED_LIBGCRYPT_VERSION) )
+-    {
+-      log_fatal (_("%s is too old (need %s, have %s)\n"), "libgcrypt",
+-                 NEED_LIBGCRYPT_VERSION, gcry_check_version (NULL) );
+-    }
+   setup_libgcrypt_logging ();
+   gcry_control (GCRYCTL_INIT_SECMEM, 16384, 0);
+ 

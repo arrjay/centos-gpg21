@@ -1,7 +1,7 @@
 Summary: Utility for secure communication and data storage
 Name:    gnupg2
-Version: 2.1.11
-Release: 1%{?dist}
+Version: 2.1.13
+Release: 3%{?dist}
 
 License: GPLv3+
 Group:   Applications/System
@@ -13,11 +13,15 @@ Patch1:  gnupg-2.1.11-insttools.patch
 # needed for compatibility with system FIPS mode
 Patch3:  gnupg-2.1.10-secmem.patch
 # non-upstreamable patch adding file-is-digest option needed for Copr
-Patch4:  gnupg-2.1.10-file-is-digest.patch
+Patch4:  gnupg-2.1.13-file-is-digest.patch
 Patch5:  gnupg-2.1.1-ocsp-keyusage.patch
 Patch6:  gnupg-2.1.1-fips-algo.patch
-Patch7:  gnupg-2.1.11-build.patch
-Patch8:  gnupg-2.1.11-fix-tests.patch
+Patch7:  gnupg-2.1.12-build.patch
+# upstream patch to avoid using libgcrypt uninitialized
+Patch8:  gnupg-2.1.13-init-libgcrypt.patch
+
+# Upstream patch to use a fixed timestamp in tofu tests
+Patch9:  gnupg-2.1.13-tofu-test.patch
 
 URL:     http://www.gnupg.org/
 
@@ -42,7 +46,9 @@ BuildRequires: fuse
 
 Requires(post): /sbin/install-info
 Requires(postun): /sbin/install-info
-Requires: pinentry
+Recommends: pinentry
+
+Recommends: gnupg2-smime
 
 %if 0%{?rhel} > 5
 # pgp-tools, perl-GnuPG-Interface requires 'gpg' (not sure why) -- Rex
@@ -91,7 +97,8 @@ to the base GnuPG package
 %patch5 -p1 -b .keyusage
 %patch6 -p1 -b .fips
 %patch7 -p1 -b .build
-%patch8 -p1 -b .fix-tests
+%patch8 -p1 -b .init-libgcrypt
+%patch9 -p1 -b .tofu-test
 
 # pcsc-lite library major: 0 in 1.2.0, 1 in 1.2.9+ (dlopen()'d in pcsc-wrapper)
 # Note: this is just the name of the default shared lib to load in scdaemon,
@@ -104,6 +111,7 @@ sed -i -e 's/"libpcsclite\.so"/"%{pcsclib}"/' scd/scdaemon.c
 %build
 
 %configure \
+  --disable-gpgtar \
   --disable-rpath \
   --enable-g13
 
@@ -130,7 +138,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/gnupg
 touch %{buildroot}%{_sysconfdir}/gnupg/gpgconf.conf
 
 # more docs
-install -m644 -p AUTHORS ChangeLog NEWS THANKS TODO \
+install -m644 -p AUTHORS NEWS THANKS TODO \
   %{buildroot}%{_pkgdocdir}
 
 %if 0%{?rhel} > 5
@@ -165,7 +173,7 @@ fi
 %files -f %{name}.lang
 %{!?_licensedir:%global license %%doc}
 %license COPYING
-#doc AUTHORS ChangeLog NEWS README THANKS TODO
+#doc AUTHORS NEWS README THANKS TODO
 %{_pkgdocdir}
 %dir %{_sysconfdir}/gnupg
 %ghost %config(noreplace) %{_sysconfdir}/gnupg/gpgconf.conf
@@ -176,7 +184,6 @@ fi
 %{_bindir}/gpg-agent
 %{_bindir}/gpgconf
 %{_bindir}/gpgparsemail
-%{_bindir}/gpgtar
 %{_bindir}/g13
 %{_bindir}/dirmngr
 %{_bindir}/dirmngr-client
@@ -207,6 +214,28 @@ fi
 
 
 %changelog
+* Fri Dec 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 2.1.13-3
+- Add upstream patch to fix FTBFS on Fedora 25
+
+* Mon Aug 22 2016 Tomáš Mráz <tmraz@redhat.com> - 2.1.13-2
+- avoid using libgcrypt without initialization (#1366909)
+
+* Tue Jul 12 2016 Tomáš Mráz <tmraz@redhat.com> - 2.1.13-1
+- upgrade to 2.1.13
+
+* Thu May  5 2016 Tomáš Mráz <tmraz@redhat.com> - 2.1.12-1
+- upgrade to 2.1.12
+
+* Tue Apr 12 2016 Tomáš Mráz <tmraz@redhat.com> - 2.1.11-4
+- make the pinentry dependency weak as for the public-key operations it
+  is not needed (#1324595)
+
+* Mon Mar  7 2016 Tomáš Mráz <tmraz@redhat.com> - 2.1.11-3
+- add recommends weak dependency for gnupg2-smime
+
+* Sat Mar  5 2016 Peter Robinson <pbrobinson@fedoraproject.org> 2.1.11-2
+- Don't ship ChangeLog, core details already covered in NEWS
+
 * Tue Feb 16 2016 Tomáš Mráz <tmraz@redhat.com> - 2.1.11-1
 - upgrade to 2.1.11
 
