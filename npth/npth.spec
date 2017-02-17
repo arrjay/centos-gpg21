@@ -2,7 +2,7 @@
 
 Name:           gnupg21-npth
 Version:        1.3
-Release:        1%{?dist}
+Release:        2
 Summary:        The New GNU Portable Threads library
 # software uses dual licensing (or both in parallel)
 License:        LGPLv3+ or GPLv2+ or (LGPLv3+ and GPLv2+)
@@ -68,6 +68,9 @@ make check
 %{_datadir}/aclocal/npth.m4
 
 %changelog
+* Thu Feb 16 2017 RJ Bergeron <rbergeron@palantir.com> 1.3-2
+- fedora import wants to use %%{name} macro, stoppit (rbergeron@palantir.com)
+
 * Tue Nov 22 2016 Igor Gnatenko <i.gnatenko.brain@gmail.com> - 1.3-1
 - Update to 1.3
 
