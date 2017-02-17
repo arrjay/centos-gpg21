@@ -1,7 +1,9 @@
+%define _prefix /opt/gnupg21
+
 Summary: Utility for secure communication and data storage
-Name:    gnupg2
+Name:    gnupg21
 Version: 2.1.11
-Release: 1%{?dist}
+Release: 3%{?dist}
 
 License: GPLv3+
 Group:   Applications/System
@@ -26,14 +28,18 @@ BuildRequires: bzip2-devel
 BuildRequires: curl-devel
 BuildRequires: docbook-utils
 BuildRequires: gettext
-BuildRequires: libassuan-devel >= 2.1.0
-BuildRequires: libgcrypt-devel >= 1.6.0
-BuildRequires: libgpg-error-devel >= 1.16
+BuildRequires: gnupg21-libassuan-devel >= 2.1.0
+BuildRequires: gnupg21-libgcrypt-devel >= 1.6.0
+BuildRequires: gnupg21-libgpg-error-devel >= 1.16
+%if 0%{?rhel} > 6
 BuildRequires: libksba-devel >= 1.3.0
+%else
+BuildRequires: gnupg21-libksba-devel
+%endif
 BuildRequires: openldap-devel
 BuildRequires: libusb-devel
 BuildRequires: pcsc-lite-libs
-BuildRequires: npth-devel
+BuildRequires: gnupg21-npth-devel
 BuildRequires: readline-devel ncurses-devel
 BuildRequires: zlib-devel
 BuildRequires: gnutls-devel
@@ -44,22 +50,22 @@ Requires(post): /sbin/install-info
 Requires(postun): /sbin/install-info
 Requires: pinentry
 
-%if 0%{?rhel} > 5
-# pgp-tools, perl-GnuPG-Interface requires 'gpg' (not sure why) -- Rex
-Provides: gpg = %{version}-%{release}
-# Obsolete GnuPG-1 package
-Provides: gnupg = %{version}-%{release}
-Obsoletes: gnupg <= 1.4.10
+%{?filter_setup:
+%filter_from_requires /libgpg-error.so.0.*/d
+%filter_from_requires /libgcrypt.so.20.*/d
+%filter_from_requires /libassuan.so.0.*/d
+%filter_from_requires /libnpth.so.0.*/d
+%if 0%{?rhel} < 7
+%filter_from_requires /libksba.so.8.*/d
 %endif
-
-Provides: dirmngr = %{version}-%{release}
-Obsoletes: dirmngr < 1.2.0-1
+%filter_setup
+}
 
 %{!?_pkgdocdir: %global _pkgdocdir %{_docdir}/%{name}-%{version}}
 
 %package smime
 Summary: CMS encryption and signing tool and smart card support for GnuPG
-Requires: gnupg2 = %{version}-%{release}
+Requires: gnupg21 = %{version}-%{release}
 Group: Applications/Internet
 
 
@@ -102,6 +108,10 @@ sed -i -e 's/"libpcsclite\.so"/"%{pcsclib}"/' scd/scdaemon.c
 
 
 %build
+export PATH=%{_prefix}/bin:$PATH
+export LIBRARY_PATH=%{_libdir}
+export CFLAGS="-Wl,-R%{_libdir}"
+export CPATH=%{_prefix}/include
 
 %configure \
   --disable-rpath \
@@ -123,7 +133,7 @@ make install DESTDIR=%{buildroot} \
 rename gnupg.7 gnupg2.7 %{buildroot}%{_mandir}/man7/gnupg.7*
 %endif
 
-%find_lang %{name}
+%find_lang gnupg2
 
 # gpgconf.conf
 mkdir -p %{buildroot}%{_sysconfdir}/gnupg
@@ -162,9 +172,9 @@ if [ $1 -eq 0 ]; then
 fi
 
 
-%files -f %{name}.lang
-%{!?_licensedir:%global license %%doc}
-%license COPYING
+%files -f gnupg2.lang
+#%{!?_licensedir:%global license %%doc}
+#%license COPYING
 #doc AUTHORS ChangeLog NEWS README THANKS TODO
 %{_pkgdocdir}
 %dir %{_sysconfdir}/gnupg
@@ -184,7 +194,6 @@ fi
 %{_bindir}/gpg
 %{_bindir}/gpgv
 %{_bindir}/gpgsplit
-%{_bindir}/gpg-zip
 %endif
 %{_bindir}/watchgnupg
 %{_sbindir}/*
@@ -207,6 +216,12 @@ fi
 
 
 %changelog
+* Sun May 29 2016 RJ Bergeron <rbergero@gmail.com> - 2.1.11-2
+- force libksba dep for el7
+
+* Sat May 28 2016 RJ Bergeron <rbergero@gmail.com> - 2.1.11-2
+- rebuild for c6/c7 systems, planted in /opt/gnupg21
+
 * Tue Feb 16 2016 Tomáš Mráz <tmraz@redhat.com> - 2.1.11-1
 - upgrade to 2.1.11
 
