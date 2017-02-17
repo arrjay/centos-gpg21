@@ -107,6 +107,9 @@ exit 0
 %{_mandir}/man1/gpg-error-config.*
 
 %changelog
+* Thu Feb 16 2017 RJ Bergeron <rbergeron@palantir.com> 1.24-1
+- upstream update
+
 * Thu Jul 14 2016 Tomáš Mráz <tmraz@redhat.com> 1.24-1
 - new upstream release
 
