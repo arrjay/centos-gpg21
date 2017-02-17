@@ -1,6 +1,14 @@
-Name: libgcrypt
+# hijack prefix
+%define _prefix /opt/gnupg21
+# el6 compat hack
+%if 0%{?rhel} < 7
+%define _infodir %{_prefix}/share/info
+%define _mandir %{_prefix}/share/man
+%endif
+
+Name: gnupg21-libgcrypt
 Version: 1.6.4
-Release: 1%{?dist}
+Release: 3%{?dist}
 URL: http://www.gnupg.org/
 Source0: libgcrypt-%{version}-hobbled.tar.xz
 # The original libgcrypt sources now contain potentially patented ECC
@@ -55,11 +63,21 @@ Patch24: libgcrypt-1.6.3-urandom-only.patch
 # are in the devel subpackage.
 License: LGPLv2+
 Summary: A general-purpose cryptography library
-BuildRequires: gawk, libgpg-error-devel >= 1.11, pkgconfig
+BuildRequires: gawk, gnupg21-libgpg-error-devel >= 1.11, pkgconfig
 BuildRequires: fipscheck
 # This is needed only when patching the .texi doc.
 BuildRequires: texinfo
 Group: System Environment/Libraries
+
+# override provides filter to not use system gpg-error
+%{?filter_setup:
+%filter_from_requires /libgpg-error.so.0.*/d
+%filter_from_requires /libgcrypt.so.20.*/d
+%filter_from_provides /libgcrypt.so.20.*/d
+%filter_setup
+}
+# but require our libgpg-error for runtime!
+Requires: gnupg21-libgpg-error
 
 %package devel
 Summary: Development files for the %{name} package
@@ -67,7 +85,7 @@ License: LGPLv2+ and GPLv2+
 Group: Development/Libraries
 Requires(pre): /sbin/install-info
 Requires(post): /sbin/install-info
-Requires: libgpg-error-devel
+Requires: gnupg21-libgpg-error-devel
 Requires: %{name} = %{version}-%{release}
 
 %description
@@ -80,7 +98,7 @@ in GNU Privacy Guard.  This package contains files needed to develop
 applications using libgcrypt.
 
 %prep
-%setup -q
+%setup -q -n libgcrypt-%{version}
 %{SOURCE3}
 %patch2 -p1 -b .use-fipscheck
 %patch5 -p1 -b .tests
@@ -102,6 +120,10 @@ cp %{SOURCE4} cipher/
 cp %{SOURCE5} %{SOURCE6} tests/
 
 %build
+# override path to gpg-error-config
+export PATH=%{_prefix}/bin:$PATH
+export LIBRARY_PATH=%{_libdir}
+export CFLAGS="-Wl,-R%{_libdir}"
 %configure --disable-static \
 %ifarch sparc64
      --disable-asm \
@@ -194,7 +216,7 @@ exit 0
 
 %files devel
 %defattr(-,root,root,-)
-%{_bindir}/%{name}-config
+%{_bindir}/libgcrypt-config
 %{_bindir}/dumpsexp
 %{_bindir}/hmac256
 %{_bindir}/mpicalc
@@ -208,6 +230,12 @@ exit 0
 %license COPYING
 
 %changelog
+* Sun May 29 2016 RJ Bergeron <rbergero@gmail.com> 1.6.4-3
+- fixup for centos6
+
+* Sat May 28 2016 RJ Bergeron <rbergero@gmail.com> 1.6.4-2
+- pack up for centos6/7 in /opt/gnupg21
+
 * Wed Sep  9 2015 Tomáš Mráz <tmraz@redhat.com> 1.6.4-1
 - new upstream version
 
