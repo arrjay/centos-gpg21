@@ -8,4 +8,4 @@ set -e -x
 
 rm -f cipher/ecc-curves.c
 rm -f tests/curves.c
-rm -f tests/t_mpi_point.c
+rm -f tests/t-mpi-point.c

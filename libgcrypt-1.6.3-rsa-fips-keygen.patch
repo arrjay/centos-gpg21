@@ -1,3 +1,7 @@
+Add FIPS 186-4 compliant RSA probable prime key generator.
+
+Signed-off-by: Tomáš Mráz <tmraz@redhat.com>
+
 diff -up libgcrypt-1.6.3/cipher/primegen.c.fips-keygen libgcrypt-1.6.3/cipher/primegen.c
 --- libgcrypt-1.6.3/cipher/primegen.c.fips-keygen	2015-03-06 16:38:56.698052602 +0100
 +++ libgcrypt-1.6.3/cipher/primegen.c	2015-03-06 16:45:45.848193024 +0100
