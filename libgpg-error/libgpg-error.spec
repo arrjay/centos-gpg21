@@ -3,12 +3,12 @@
 
 Summary: Library for error values used by GnuPG components
 Name: gnupg21-libgpg-error
-Version: 1.21
-Release: 2%{?dist}
+Version: 1.24
+Release: 1%{?dist}
 URL: ftp://ftp.gnupg.org/gcrypt/libgpg-error/
 Source0: ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-%{version}.tar.bz2
 Source1: ftp://ftp.gnupg.org/gcrypt/libgpg-error/libgpg-error-%{version}.tar.bz2.sig
-Patch1: libgpg-error-1.20-multilib.patch
+Patch1: libgpg-error-1.24-multilib.patch
 Group: System Environment/Libraries
 License: LGPLv2+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -18,8 +18,6 @@ BuildRequires: texinfo
 %if 0%{?fedora} > 13
 BuildRequires: gettext-autopoint
 %endif
-Requires(post): /sbin/ldconfig
-Requires(postun): /sbin/ldconfig
 
 # override provides filter to not take over system gpg-error
 # filter requires to match.
@@ -109,8 +107,17 @@ exit 0
 %{_mandir}/man1/gpg-error-config.*
 
 %changelog
+* Thu Jul 14 2016 Tomáš Mráz <tmraz@redhat.com> 1.24-1
+- new upstream release
+
 * Sat May 28 2016 RJ Bergeron <rbergero@gmail.com> 1.21-2
 - pack up for centos5/6 in /opt/gnupg21
+
+* Fri Mar 18 2016 Rex Dieter <rdieter@fedoraproject.org> - 1.21-3
+- drop explicit /sbin/ldconfig scriptlet deps (#1319144)
+
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.21-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
 * Tue Dec 22 2015 Tomáš Mráz <tmraz@redhat.com> 1.21-1
 - new upstream release
