@@ -106,6 +106,9 @@ fi
 
 
 %changelog
+* Thu Feb 16 2017 RJ Bergeron <rbergeron@palantir.com> 2.4.3-1
+- upstream update
+
 * Thu Jul 14 2016 Tomáš Mráz <tmraz@redhat.com> 2.4.3-1
 - new upstream release
 
