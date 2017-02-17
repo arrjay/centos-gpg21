@@ -220,6 +220,9 @@ fi
 
 
 %changelog
+* Thu Feb 16 2017 RJ Bergeron <rbergeron@palantir.com> 2.1.13-3
+- upstream updates
+
 * Fri Dec 16 2016 Stephen Gallagher <sgallagh@redhat.com> - 2.1.13-3
 - Add upstream patch to fix FTBFS on Fedora 25
 
