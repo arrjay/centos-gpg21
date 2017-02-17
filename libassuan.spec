@@ -1,6 +1,6 @@
 Name:    libassuan
 Summary: GnuPG IPC library
-Version: 2.4.2
+Version: 2.4.3
 Release: 1%{?dist}
 
 # The library is LGPLv2+, the documentation GPLv3+
@@ -91,6 +91,12 @@ fi
 
 
 %changelog
+* Thu Jul 14 2016 Tomáš Mráz <tmraz@redhat.com> 2.4.3-1
+- new upstream release
+
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Thu Dec  3 2015 Tomáš Mráz <tmraz@redhat.com> 2.4.2-1
 - new upstream release
 
