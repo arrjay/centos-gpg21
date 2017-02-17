@@ -1,0 +1,27 @@
+diff -up libgcrypt-1.6.5/cipher/primegen.c.leak libgcrypt-1.6.5/cipher/primegen.c
+--- libgcrypt-1.6.5/cipher/primegen.c.leak	2016-07-21 11:06:32.783421204 +0200
++++ libgcrypt-1.6.5/cipher/primegen.c	2016-07-21 11:06:32.789421337 +0200
+@@ -1208,10 +1208,7 @@ _gcry_prime_group_generator (gcry_mpi_t
+                              gcry_mpi_t prime, gcry_mpi_t *factors,
+                              gcry_mpi_t start_g)
+ {
+-  gcry_mpi_t tmp   = mpi_new (0);
+-  gcry_mpi_t b     = mpi_new (0);
+-  gcry_mpi_t pmin1 = mpi_new (0);
+-  gcry_mpi_t g = start_g? mpi_copy (start_g) : mpi_set_ui (NULL, 3);
++  gcry_mpi_t tmp, b, pmin1, g;
+   int first = 1;
+   int i, n;
+ 
+@@ -1224,6 +1221,11 @@ _gcry_prime_group_generator (gcry_mpi_t
+   if (n < 2)
+     return GPG_ERR_INV_ARG;
+ 
++  tmp = mpi_new (0);
++  b = mpi_new (0);
++  pmin1 = mpi_new (0);
++  g = start_g? mpi_copy (start_g) : mpi_set_ui (NULL, 3);
++
+   /* Extra sanity check - usually disabled. */
+ /*   mpi_set (tmp, factors[0]); */
+ /*   for(i = 1; i < n; i++) */

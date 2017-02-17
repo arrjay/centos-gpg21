@@ -7,8 +7,8 @@
 %endif
 
 Name: gnupg21-libgcrypt
-Version: 1.6.4
-Release: 3%{?dist}
+Version: 1.6.6
+Release: 1%{?dist}
 URL: http://www.gnupg.org/
 Source0: libgcrypt-%{version}-hobbled.tar.xz
 # The original libgcrypt sources now contain potentially patented ECC
@@ -33,8 +33,8 @@ Patch5: libgcrypt-1.6.1-tests.patch
 Patch6: libgcrypt-1.6.1-fips-cfgrandom.patch
 # update the CAVS tests
 Patch7: libgcrypt-1.6.2-fips-cavs.patch
-# fix for memory leaks an other errors found by Coverity scan
-Patch9: libgcrypt-1.6.1-leak.patch
+# fix for memory leaks and other errors found by Coverity scan
+Patch9: libgcrypt-1.6.5-leak.patch
 # use poll instead of select when gathering randomness
 Patch11: libgcrypt-1.6.1-use-poll.patch
 # slight optimalization of mpicoder.c to silence Valgrind (#968288)
@@ -230,11 +230,20 @@ exit 0
 %license COPYING
 
 %changelog
+* Wed Aug 17 2016 Tomáš Mráz <tmraz@redhat.com> 1.6.6-1
+- new upstream version with important security fix (CVE-2016-6316)
+
+* Thu Jul 21 2016 Tomáš Mráz <tmraz@redhat.com> 1.6.5-1
+- new upstream version fixing low impact issue CVE-2015-7511
+
 * Sun May 29 2016 RJ Bergeron <rbergero@gmail.com> 1.6.4-3
 - fixup for centos6
 
 * Sat May 28 2016 RJ Bergeron <rbergero@gmail.com> 1.6.4-2
 - pack up for centos6/7 in /opt/gnupg21
+
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.6.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
 * Wed Sep  9 2015 Tomáš Mráz <tmraz@redhat.com> 1.6.4-1
 - new upstream version
