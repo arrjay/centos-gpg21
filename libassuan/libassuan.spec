@@ -2,8 +2,8 @@
 
 Name:    gnupg21-libassuan
 Summary: GnuPG IPC library
-Version: 2.4.2
-Release: 2%{?dist}
+Version: 2.4.3
+Release: 1%{?dist}
 
 # The library is LGPLv2+, the documentation GPLv3+
 License: LGPLv2+ and GPLv3+
@@ -106,8 +106,16 @@ fi
 
 
 %changelog
+<<<<<<< HEAD
+* Thu Jul 14 2016 Tomáš Mráz <tmraz@redhat.com> 2.4.3-1
+- new upstream release
+
 * Sat May 28 2016 RJ Bergeron <rbergero@gmail.com> 2.4.2-1
 - hack up build to live in /opt/gnupg21, targeting c6/7
+
+
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
 * Thu Dec  3 2015 Tomáš Mráz <tmraz@redhat.com> 2.4.2-1
 - new upstream release
