@@ -1,0 +1,18 @@
+diff -up libgcrypt-1.6.2/tests/basic.c.fips-test libgcrypt-1.6.2/tests/basic.c
+--- libgcrypt-1.6.2/tests/basic.c.fips-test	2014-08-21 14:50:39.000000000 +0200
++++ libgcrypt-1.6.2/tests/basic.c	2014-12-08 16:54:07.767619682 +0100
+@@ -582,6 +582,14 @@ check_ctr_cipher (void)
+       if (!tv[i].algo)
+         continue;
+ 
++      if (gcry_cipher_test_algo (tv[i].algo) && in_fips_mode)
++        {
++          if (verbose)
++            fprintf (stderr, "  algorithm %d not available in fips mode\n",
++                     tv[i].algo);
++          continue;
++        }
++
+       err = gcry_cipher_open (&hde, tv[i].algo, GCRY_CIPHER_MODE_CTR, 0);
+       if (!err)
+ 	err = gcry_cipher_open (&hdd, tv[i].algo, GCRY_CIPHER_MODE_CTR, 0);
