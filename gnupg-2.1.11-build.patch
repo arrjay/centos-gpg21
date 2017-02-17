@@ -1,0 +1,88 @@
+diff -up gnupg-2.1.11/configure.ac.build gnupg-2.1.11/configure.ac
+--- gnupg-2.1.11/configure.ac.build	2016-01-26 10:36:37.000000000 +0100
++++ gnupg-2.1.11/configure.ac	2016-02-01 17:51:47.173400243 +0100
+@@ -89,8 +89,8 @@ AC_GNU_SOURCE
+ # CFLAGS (they are restored at the end of the configure script).  This
+ # is because some configure checks don't work with -Werror, but we'd
+ # like to use -Werror with our build.
+-CFLAGS_orig=$CFLAGS
+-CFLAGS=
++#CFLAGS_orig=$CFLAGS
++#CFLAGS=
+ 
+ # Some status variables.
+ have_gpg_error=no
+@@ -1585,7 +1585,7 @@ AC_ARG_ENABLE(optimization,
+ #
+ # Add user CFLAGS.
+ #
+-CFLAGS="$CFLAGS $CFLAGS_orig"
++# CFLAGS="$CFLAGS $CFLAGS_orig"
+ 
+ #
+ # Decide what to build
+diff -up gnupg-2.1.11/configure.build gnupg-2.1.11/configure
+--- gnupg-2.1.11/configure.build	2016-01-26 13:54:50.000000000 +0100
++++ gnupg-2.1.11/configure	2016-02-01 17:52:58.736827069 +0100
+@@ -5039,8 +5039,8 @@ $as_echo "$ac_cv_safe_to_define___extens
+ # CFLAGS (they are restored at the end of the configure script).  This
+ # is because some configure checks don't work with -Werror, but we'd
+ # like to use -Werror with our build.
+-CFLAGS_orig=$CFLAGS
+-CFLAGS=
++#CFLAGS_orig=$CFLAGS
++#CFLAGS=
+ 
+ # Some status variables.
+ have_gpg_error=no
+@@ -15353,7 +15353,7 @@ fi
+ #
+ # Add user CFLAGS.
+ #
+-CFLAGS="$CFLAGS $CFLAGS_orig"
++# CFLAGS="$CFLAGS $CFLAGS_orig"
+ 
+ #
+ # Decide what to build
+diff -up gnupg-2.1.11/dirmngr/Makefile.am.build gnupg-2.1.11/dirmngr/Makefile.am
+--- gnupg-2.1.11/dirmngr/Makefile.am.build	2016-01-26 10:36:37.000000000 +0100
++++ gnupg-2.1.11/dirmngr/Makefile.am	2016-02-01 17:46:13.840412143 +0100
+@@ -132,7 +132,7 @@ endif
+ t_http_SOURCES = t-http.c http.c dns-stuff.c
+ t_http_CFLAGS  = -DWITHOUT_NPTH=1 \
+ 	         $(LIBGCRYPT_CFLAGS) $(NTBTLS_CFLAGS) $(LIBGNUTLS_CFLAGS) \
+-                 $(GPG_ERROR_CFLAGS)
++                 $(GPG_ERROR_CFLAGS) $(LIBASSUAN_CFLAGS)
+ t_http_LDADD   = $(t_common_ldadd) \
+ 	         $(NTBTLS_LIBS) $(LIBGNUTLS_LIBS) $(DNSLIBS)
+ 
+@@ -140,7 +140,7 @@ t_ldap_parse_uri_SOURCES = \
+ 	t-ldap-parse-uri.c ldap-parse-uri.c ldap-parse-uri.h \
+         http.c dns-stuff.c \
+         $(ldap_url) $(t_common_src)
+-t_ldap_parse_uri_CFLAGS = -DWITHOUT_NPTH=1
++t_ldap_parse_uri_CFLAGS = -DWITHOUT_NPTH=1 $(LIBASSUAN_CFLAGS)
+ t_ldap_parse_uri_LDADD = $(ldaplibs) $(t_common_ldadd) $(DNSLIBS)
+ 
+ t_dns_stuff_CFLAGS = -DWITHOUT_NPTH=1
+diff -up gnupg-2.1.11/dirmngr/Makefile.in.build gnupg-2.1.11/dirmngr/Makefile.in
+--- gnupg-2.1.11/dirmngr/Makefile.in.build	2016-01-26 13:54:48.000000000 +0100
++++ gnupg-2.1.11/dirmngr/Makefile.in	2016-02-01 17:46:13.840412143 +0100
+@@ -640,7 +640,7 @@ module_tests = t-dns-stuff $(am__append_
+ t_http_SOURCES = t-http.c http.c dns-stuff.c
+ t_http_CFLAGS = -DWITHOUT_NPTH=1 \
+ 	         $(LIBGCRYPT_CFLAGS) $(NTBTLS_CFLAGS) $(LIBGNUTLS_CFLAGS) \
+-                 $(GPG_ERROR_CFLAGS)
++                 $(GPG_ERROR_CFLAGS) $(LIBASSUAN_CFLAGS)
+ 
+ t_http_LDADD = $(t_common_ldadd) \
+ 	         $(NTBTLS_LIBS) $(LIBGNUTLS_LIBS) $(DNSLIBS)
+@@ -650,7 +650,7 @@ t_ldap_parse_uri_SOURCES = \
+         http.c dns-stuff.c \
+         $(ldap_url) $(t_common_src)
+ 
+-t_ldap_parse_uri_CFLAGS = -DWITHOUT_NPTH=1
++t_ldap_parse_uri_CFLAGS = -DWITHOUT_NPTH=1 $(LIBASSUAN_CFLAGS)
+ t_ldap_parse_uri_LDADD = $(ldaplibs) $(t_common_ldadd) $(DNSLIBS)
+ t_dns_stuff_CFLAGS = -DWITHOUT_NPTH=1
+ t_dns_stuff_SOURCES = t-dns-stuff.c dns-stuff.c
